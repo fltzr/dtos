@@ -1,0 +1,6 @@
+{
+  "printWidth": 100,
+  "arrowParens": "always",
+  "experimentalTernaries": true,
+  "singleQuote": true
+}
