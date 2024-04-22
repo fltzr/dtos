@@ -2,5 +2,5 @@
   "$schema": "https://json.schemastore.org/nodemon.json",
   "watch": ["*.ts"],
   "ext": "ts",
-  "exec": "ts-node ./src/index.ts"
+  "exec": "tsx ./src/index.ts"
 }
