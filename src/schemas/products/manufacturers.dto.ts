@@ -12,27 +12,25 @@ const ManufacturerInputSchema = BaseInputSchema.extend({
       (value) => /^[a-zA-Z0-9]*$/.test(value),
       'Name must not contain special characters.'
     ),
-  description: z.string().max(500).optional(),
+  description: z.string().max(500).nullish(),
 });
 
 export const ManufacturerOutputSchema = BaseOutputSchema.extend({
   manufacturer_id: z.number(),
   name: z.string(),
-  description: z.string().optional(),
-})
-  .partial({ description: true })
-  .transform((dbData) => ({
-    manufacturerId: dbData.manufacturer_id,
-    uuid: dbData.uuid,
-    name: dbData.name,
-    description: dbData.description,
-    accessLevel: dbData.access_level,
-    isDeleted: dbData.is_deleted,
-    createdAt: dbData.created_at,
-    createdBy: dbData.created_by,
-    updatedAt: dbData.updated_at,
-    updatedBy: dbData.updated_by,
-  }));
+  description: z.string().nullish(),
+}).transform((dbData) => ({
+  manufacturerId: dbData.manufacturer_id,
+  uuid: dbData.uuid,
+  name: dbData.name,
+  description: dbData.description,
+  accessLevel: dbData.access_level,
+  isDeleted: dbData.is_deleted,
+  createdAt: dbData.created_at,
+  createdBy: dbData.created_by,
+  updatedAt: dbData.updated_at,
+  updatedBy: dbData.updated_by,
+}));
 
 export const ManufacturerCreateSchema = ManufacturerInputSchema.omit({
   manufacturerId: true,

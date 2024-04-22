@@ -1,16 +1,14 @@
 import type { Request, Response, NextFunction } from 'express';
-
 import db from '../db/knex';
-import { ErrorHandler } from '../exception/db-exception';
-
 import { ManufacturerOutputSchema } from '../schemas/products/manufacturers.dto';
+import { ErrorHandler } from '../exception/db-exception';
 
 const transformManufacturer = (data: any) =>
   ManufacturerOutputSchema.transform((data) => ({
     uuid: data.uuid,
     manufacturerId: data.manufacturerId,
     name: data.name,
-    description: data.description,
+    description: data.description ?? '',
     accessLevel: data.accessLevel,
     updatedBy: data.updatedBy,
     updatedAt: data.updatedAt,
@@ -29,8 +27,8 @@ export const createManufacturer = async (
     console.log(`\n📄 Parsed Data: ${JSON.stringify(parsedData, null, 2)}`);
 
     const result = await db('manufacturers')
-      .insert(parsedData)
-      .returning(['manufacturer_id', 'uuid']);
+      .returning(['manufacturer_id', 'uuid'])
+      .insert(parsedData);
 
     return response.status(201).send({ result });
   } catch (error) {
@@ -51,7 +49,7 @@ export const readManufacturers = async (
 
     return response.send(manufacturers);
   } catch (error) {
-    console.error(JSON.stringify(error, null, 2));
+    console.error(`[READ MANUFACTURER ERROR]: ${JSON.stringify(error, null, 2)}`);
     return next(new Error('Internal Server Error'));
   }
 };
@@ -81,7 +79,7 @@ export const readManufacturerByResourceId = async (
     console.error(error);
     return response
       .status(500)
-      .send({ error: 'An error occurred while fetching the manufacturer.' });
+      .send({ error: 'An error occurred while fetching the catalog category.' });
   }
 };
 
@@ -115,11 +113,11 @@ export const deleteManufacturer = async (
     const result = await db('manufacturers')
       .where(
         typeof resourceId === 'number'
-          ? { manufacturer: resourceId }
+          ? { manufacturer_id: resourceId }
           : { uuid: resourceId }
       )
       .update({ is_deleted: true })
-      .returning(['manufacturer', 'uuid']);
+      .returning(['manufacturer_id', 'uuid']);
 
     return response.status(200).send({ result });
   } catch (error) {
