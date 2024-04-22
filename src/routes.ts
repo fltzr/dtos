@@ -27,6 +27,18 @@ import {
   deleteManufacturer,
 } from './controllers/manufacturers.controller';
 
+import {
+  ProductTypeCreateSchema,
+  ProductTypeUpdateSchema,
+} from './schemas/products/product-types.dto';
+import {
+  createProductType,
+  readProductTypes,
+  readProductTypeByResourceId,
+  updateProductType,
+  deleteProductType,
+} from './controllers/product-types.controller';
+
 // Define routes
 export const routes = Router();
 
@@ -71,3 +83,24 @@ routes
 
   /* [D]elete */
   .delete('/m/:id', validateParams, deleteManufacturer);
+
+routes
+  /* [C]reate */
+  .post('/pt', validateBody(ProductTypeCreateSchema, 'CREATE'), createProductType)
+
+  /* [R]ead  all catalog categories */
+  .get('/pt', readProductTypes)
+
+  /* [R]ead by catalog_category_id or uuid */
+  .get('/pt/:id', validateParams, readProductTypeByResourceId)
+
+  /* [U]pdate */
+  .patch(
+    '/pt/:id',
+    validateParams,
+    validateBody(ProductTypeUpdateSchema, 'UPDATE'),
+    updateProductType
+  )
+
+  /* [D]elete */
+  .delete('/pt/:id', validateParams, deleteProductType);

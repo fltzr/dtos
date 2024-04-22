@@ -1,11 +1,13 @@
 import type { Knex } from 'knex';
 
+const TABLE = 'product_types';
+
 export async function up(knex: Knex): Promise<void> {
-  await knex.schema.createTable('product_types', (table) => {
+  await knex.schema.createTable(TABLE, (table) => {
     table.increments('product_type_id').primary();
     table.uuid('uuid').defaultTo(knex.fn.uuid()).unique(),
-      table.string('name').notNullable();
-    table.string('description').checkLength('<', 500).nullable();
+      table.string('name').notNullable().unique();
+    table.string('description').checkLength('<', 100).nullable();
     table.boolean('is_deleted').defaultTo(false);
     table.string('access_level').notNullable();
     table.string('created_by').notNullable();
@@ -16,5 +18,5 @@ export async function up(knex: Knex): Promise<void> {
 }
 
 export async function down(knex: Knex): Promise<void> {
-  await knex.schema.dropTable('product_types');
+  await knex.schema.dropTable(TABLE);
 }

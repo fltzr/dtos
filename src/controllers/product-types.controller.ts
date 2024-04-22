@@ -1,16 +1,16 @@
 import type { Request, Response, NextFunction } from 'express';
 import db from '../db/knex';
-import { ManufacturerOutputSchema } from '../schemas/products/manufacturers.dto';
+import { ProductTypeOutputSchema } from '../schemas/products/product-types.dto';
 import { ErrorHandler } from '../exception/db-exception';
 
-const transformManufacturer = (data: any) =>
-  ManufacturerOutputSchema.transform((data) => ({
-    manufacturerId: data.manufacturerId,
+const transformProductType = (data: any) =>
+  ProductTypeOutputSchema.transform((data) => ({
+    productTypeId: data.productTypeId,
     name: data.name,
     description: data.description ?? '',
   })).parse(data);
 
-export const createManufacturer = async (
+export const createProductType = async (
   request: Request,
   response: Response,
   next: NextFunction
@@ -20,8 +20,8 @@ export const createManufacturer = async (
 
     console.log(`\n📄 Parsed Data: ${JSON.stringify(parsedData, null, 2)}`);
 
-    const result = await db('manufacturers')
-      .returning(['manufacturer_id', 'uuid'])
+    const result = await db('product_types')
+      .returning(['product_type_id', 'uuid'])
       .insert(parsedData);
 
     return response.status(201).send({ result });
@@ -31,24 +31,24 @@ export const createManufacturer = async (
   }
 };
 
-export const readManufacturers = async (
+export const readProductTypes = async (
   _request: Request,
   response: Response,
   next: NextFunction
 ) => {
   try {
-    const raw = await db.select('*').from('manufacturers').where({ is_deleted: false });
+    const raw = await db.select('*').from('product_types').where({ is_deleted: false });
 
-    const manufacturers = raw.map(transformManufacturer);
+    const productTypes = raw.map(transformProductType);
 
-    return response.send(manufacturers);
+    return response.send(productTypes);
   } catch (error) {
-    console.error(`[READ MANUFACTURER ERROR]: ${JSON.stringify(error, null, 2)}`);
+    console.error(`[READ PRODUCTTYPE ERROR]: ${JSON.stringify(error, null, 2)}`);
     return next(new Error('Internal Server Error'));
   }
 };
 
-export const readManufacturerByResourceId = async (
+export const readProductTypeByResourceId = async (
   request: Request,
   response: Response
 ) => {
@@ -57,18 +57,18 @@ export const readManufacturerByResourceId = async (
   try {
     const query = db
       .select('*')
-      .from('manufacturers')
+      .from('product_types')
       .where(
         typeof resourceId === 'number'
-          ? { manufacturer_id: resourceId }
+          ? { product_type_id: resourceId }
           : { uuid: resourceId }
       )
       .first();
 
     const rawResponse = await query;
-    const manufacturer = transformManufacturer(rawResponse);
+    const productType = transformProductType(rawResponse);
 
-    return response.status(200).send({ items: manufacturer });
+    return response.status(200).send({ items: productType });
   } catch (error) {
     console.error(error);
     return response
@@ -77,13 +77,13 @@ export const readManufacturerByResourceId = async (
   }
 };
 
-export const updateManufacturer = async (request: Request, response: Response) => {
+export const updateProductType = async (request: Request, response: Response) => {
   const { resourceId } = request;
   const parsedData = request.body;
 
   try {
-    const result = await db('manufacturers')
-      .where({ manufacturer_id: resourceId })
+    const result = await db('product_types')
+      .where({ product_type_id: resourceId })
       .update(parsedData);
 
     console.log(`\n📄 Updated Data: ${JSON.stringify(result, null, 2)}`);
@@ -96,7 +96,7 @@ export const updateManufacturer = async (request: Request, response: Response) =
 };
 
 // soft delete
-export const deleteManufacturer = async (
+export const deleteProductType = async (
   request: Request,
   response: Response,
   next: NextFunction
@@ -104,14 +104,14 @@ export const deleteManufacturer = async (
   const { resourceId } = request;
 
   try {
-    const result = await db('manufacturers')
+    const result = await db('product_types')
       .where(
         typeof resourceId === 'number'
-          ? { manufacturer_id: resourceId }
+          ? { product_type_id: resourceId }
           : { uuid: resourceId }
       )
       .update({ is_deleted: true })
-      .returning(['manufacturer_id', 'uuid']);
+      .returning(['product_type_id', 'uuid']);
 
     return response.status(200).send({ result });
   } catch (error) {

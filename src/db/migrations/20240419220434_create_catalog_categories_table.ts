@@ -5,7 +5,7 @@ export async function up(knex: Knex): Promise<void> {
     table.increments('catalog_category_id').primary();
     table.uuid('uuid').defaultTo(knex.fn.uuid()).unique(),
       table.string('name').notNullable().unique();
-    table.string('description').nullable();
+    table.string('description').checkLength('<', 100).nullable();
     table.boolean('is_deleted').defaultTo(false);
     table.string('access_level').notNullable();
     table.string('created_by').notNullable();
