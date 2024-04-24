@@ -1,22 +1,21 @@
 import type { Knex } from 'knex';
 
-const TABLE = 'manufacturers';
-
 export async function up(knex: Knex): Promise<void> {
-  await knex.schema.createTable(TABLE, (table) => {
+  return knex.schema.createTable('manufacturers', (table) => {
     table.increments('manufacturer_id').primary();
-    table.uuid('uuid').defaultTo(knex.fn.uuid()).unique(),
-      table.string('name').notNullable().unique();
+    table.uuid('uuid').defaultTo(knex.fn.uuid()).unique();
+    table.string('name', 40).notNullable();
     table.string('description').checkLength('<', 100).nullable();
+
+    /* Meta */
+    table.integer('access_level').notNullable();
     table.boolean('is_deleted').defaultTo(false);
-    table.string('access_level').notNullable();
     table.string('created_by').notNullable();
-    table.dateTime('created_at').notNullable();
     table.string('updated_by').notNullable();
-    table.dateTime('updated_at').notNullable();
+    table.timestamps(true, true);
   });
 }
 
 export async function down(knex: Knex): Promise<void> {
-  await knex.schema.dropTable(TABLE);
+  return knex.schema.dropTableIfExists('manufacturers');
 }

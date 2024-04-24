@@ -1,19 +1,14 @@
 import type { Request, Response, NextFunction } from 'express';
 import db from '../db/knex';
 import { CatalogCategoryOutputSchema } from '../schemas/products/catalog-category.dto';
-import { ErrorHandler } from '../exception/db-exception';
+import { HttpStatus } from '../constants/http-status';
 
 const transformCatalogCategory = (data: any) =>
   CatalogCategoryOutputSchema.transform((data) => ({
+    id: data.catalogCategoryId,
     uuid: data.uuid,
-    catalogCategoryId: data.catalogCategoryId,
     name: data.name,
     description: data.description,
-    accessLevel: data.accessLevel,
-    updatedBy: data.updatedBy,
-    updatedAt: data.updatedAt,
-    createdBy: data.createdBy,
-    createdAt: data.createdAt,
   })).parse(data);
 
 export const createCatalogCategory = async (
@@ -22,18 +17,17 @@ export const createCatalogCategory = async (
   next: NextFunction
 ) => {
   try {
-    const parsedData = request.body;
-
-    console.log(`\n📄 Parsed Data: ${JSON.stringify(parsedData, null, 2)}`);
+    const { catalog_category_id, uuid, ...parsedData } = request.body;
+    console.info(`📄 Parsed Data: ${JSON.stringify(parsedData, null, 2)}`);
 
     const result = await db('catalog_categories')
       .returning(['catalog_category_id', 'uuid'])
       .insert(parsedData);
 
-    return response.status(201).send({ result });
+    return response.status(HttpStatus.CREATED).send({ result });
   } catch (error) {
     console.error(JSON.stringify(error, null, 2));
-    return new ErrorHandler(error).sendResponse(response);
+    return next(error);
   }
 };
 
@@ -43,28 +37,32 @@ export const readCatalogCategories = async (
   next: NextFunction
 ) => {
   try {
-    const raw = await db
+    const rawCategories = await db
       .select('*')
       .from('catalog_categories')
       .where({ is_deleted: false });
 
-    const catalogCategories = raw.map(transformCatalogCategory);
+    const catalogCategories = rawCategories.map(transformCatalogCategory);
 
-    return response.send(catalogCategories);
+    return response.send({
+      items: catalogCategories,
+      totalCount: catalogCategories.length,
+    });
   } catch (error) {
     console.error(JSON.stringify(error, null, 2));
-    return next(new Error('Internal Server Error'));
+    return next(error);
   }
 };
 
 export const readCatalogCategoriesByResourceId = async (
   request: Request,
-  response: Response
+  response: Response,
+  next: NextFunction
 ) => {
-  const { resourceId } = request;
+  const { resourceId } = request.params;
 
   try {
-    const query = db
+    const categoriesQuery = db
       .select('*')
       .from('catalog_categories')
       .where(
@@ -74,57 +72,62 @@ export const readCatalogCategoriesByResourceId = async (
       )
       .first();
 
-    const rawResponse = await query;
+    const rawResponse = await categoriesQuery;
     const catalogCategory = transformCatalogCategory(rawResponse);
 
-    return response.status(200).send({ items: catalogCategory });
+    return response.status(HttpStatus.OK).send({ items: catalogCategory });
   } catch (error) {
-    console.error(error);
-    return response
-      .status(500)
-      .send({ error: 'An error occurred while fetching the catalog category.' });
+    console.error(JSON.stringify(error, null, 2));
+    return next(error);
   }
 };
 
-export const updateCatalogCategory = async (request: Request, response: Response) => {
-  const { resourceId } = request;
+export const updateCatalogCategory = async (
+  request: Request,
+  response: Response,
+  next: NextFunction
+) => {
+  const { resourceId } = request.params;
   const parsedData = request.body;
 
   try {
-    const result = await db('catalog_categories')
-      .where({ catalog_category_id: resourceId })
-      .update(parsedData);
+    await db.transaction(async (trx) => {
+      const result = await trx('catalog_categories')
+        .where({ catalog_category_id: resourceId })
+        .update(parsedData);
 
-    console.log(`\n📄 Updated Data: ${JSON.stringify(result, null, 2)}`);
+      console.info(`📄 Updated Data: ${JSON.stringify(result, null, 2)}`);
+    });
 
-    return response.status(204).send();
+    return response.status(HttpStatus.NO_CONTENT).send();
   } catch (error) {
     console.error(JSON.stringify(error, null, 2));
-    return new ErrorHandler(error).sendResponse(response);
+    return next(error);
   }
 };
 
-// soft delete
 export const deleteCatalogCategory = async (
   request: Request,
   response: Response,
   next: NextFunction
 ) => {
-  const { resourceId } = request;
+  const { resourceId } = request.params;
 
   try {
-    const result = await db('catalog_categories')
-      .where(
-        typeof resourceId === 'number'
-          ? { catalog_category_id: resourceId }
-          : { uuid: resourceId }
-      )
-      .update({ is_deleted: true })
-      .returning(['catalog_category_id', 'uuid']);
+    await db.transaction(async (trx) => {
+      const result = await trx('catalog_categories')
+        .where(
+          typeof resourceId === 'number'
+            ? { catalog_category_id: resourceId }
+            : { uuid: resourceId }
+        )
+        .update({ is_deleted: true })
+        .returning(['catalog_category_id', 'uuid']);
 
-    return response.status(200).send({ result });
+      return response.status(HttpStatus.OK).send({ result });
+    });
   } catch (error) {
     console.error(JSON.stringify(error, null, 2));
-    return next(new Error('Internal Server Error'));
+    return next(error);
   }
 };

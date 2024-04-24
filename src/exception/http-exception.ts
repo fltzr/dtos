@@ -1,17 +1,19 @@
-export class HttpException extends Error {
-  public status: number;
-  public message: string;
-  public errors?: Record<string, string[]>;
+import { NextFunction, Request, Response } from 'express';
+import { HttpStatus } from '../constants/http-status';
 
-  constructor(status: number, message: string, errors?: Record<string, string[]>) {
-    super(message);
+export class ErrorHandler {
+  public static sendError = (
+    error: any,
+    request: Request,
+    response: Response,
+    next: NextFunction
+  ) => {
+    console.error(JSON.stringify(error, null, 2));
 
-    if (Error.captureStackTrace) {
-      Error.captureStackTrace(this, HttpException);
-    }
-
-    this.status = status;
-    this.message = message;
-    this.errors = errors;
-  }
+    response.status(error.status || HttpStatus.BAD_REQUEST).send({
+      success: false,
+      message: error.message || 'Server error.',
+      stack: process.env.NODE_ENV === 'development' ? error.stack : undefined,
+    });
+  };
 }
