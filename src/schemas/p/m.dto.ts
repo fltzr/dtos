@@ -1,8 +1,8 @@
 import { z } from 'zod';
 import { BaseInputSchema, BaseOutputSchema } from '../base.dto';
 
-const CatalogCategoryInputSchema = BaseInputSchema.extend({
-  catalogCategoryId: z.number().min(1).optional(),
+const MInputSchema = BaseInputSchema.extend({
+  mId: z.number().min(1).optional(),
   name: z
     .string()
     .trim()
@@ -12,15 +12,15 @@ const CatalogCategoryInputSchema = BaseInputSchema.extend({
       (value) => /^[a-zA-Z0-9]*$/.test(value),
       'Name must not contain special characters.'
     ),
-  description: z.string().max(500).optional(),
+  description: z.string().max(500).nullish(),
 });
 
-export const CatalogCategoryOutputSchema = BaseOutputSchema.extend({
-  catalog_category_id: z.number(),
+export const MOutputSchema = BaseOutputSchema.extend({
+  m_id: z.number(),
   name: z.string(),
-  description: z.string().optional(),
+  description: z.string().nullish(),
 }).transform((dbData) => ({
-  catalogCategoryId: dbData.catalog_category_id,
+  mId: dbData.m_id,
   uuid: dbData.uuid,
   name: dbData.name,
   description: dbData.description,
@@ -32,8 +32,8 @@ export const CatalogCategoryOutputSchema = BaseOutputSchema.extend({
   updatedBy: dbData.updated_by,
 }));
 
-export const CatalogCategoryCreateSchema = CatalogCategoryInputSchema.omit({
-  catalogCategoryId: true,
+export const MCreateSchema = MInputSchema.omit({
+  mId: true,
   createdBy: true,
   updatedBy: true,
   isDeleted: true,
@@ -50,7 +50,7 @@ export const CatalogCategoryCreateSchema = CatalogCategoryInputSchema.omit({
     updated_at: appData.updatedAt,
   }));
 
-export const CatalogCategoryUpdateSchema = CatalogCategoryInputSchema.pick({
+export const MUpdateSchema = MInputSchema.pick({
   name: true,
   description: true,
   accessLevel: true,
@@ -76,6 +76,6 @@ export const CatalogCategoryUpdateSchema = CatalogCategoryInputSchema.pick({
     updated_by: appData.updatedBy,
   }));
 
-export type CatalogCategoryOutput = z.infer<typeof CatalogCategoryOutputSchema>;
-export type CatalogCategoryCreate = z.infer<typeof CatalogCategoryCreateSchema>;
-export type CatalogCategoryUpdate = z.infer<typeof CatalogCategoryUpdateSchema>;
+export type MOutput = z.infer<typeof MOutputSchema>;
+export type MCreate = z.infer<typeof MCreateSchema>;
+export type MUpdate = z.infer<typeof MUpdateSchema>;

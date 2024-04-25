@@ -1,7 +1,7 @@
 import type { Knex } from 'knex';
 
 export async function up(knex: Knex): Promise<void> {
-  return knex.schema.createTable('products', (table) => {
+  return knex.schema.createTable('p', (table) => {
     /* Base column data */
     table.increments('product_id').primary();
     table.uuid('uuid').defaultTo(knex.fn.uuid()).unique();
@@ -13,15 +13,15 @@ export async function up(knex: Knex): Promise<void> {
     table
       .foreign('catalog_category_id')
       .references('catalog_category_id')
-      .inTable('catalog_categories')
+      .inTable('cc')
       .onDelete('NO ACTION')
       .onUpdate('CASCADE');
 
-    table.integer('manufacturer_id').unsigned().notNullable();
+    table.integer('m_id').unsigned().notNullable();
     table
-      .foreign('manufacturer_id')
-      .references('manufacturer_id')
-      .inTable('manufacturers')
+      .foreign('m_id')
+      .references('m_id')
+      .inTable('ms')
       .onDelete('NO ACTION')
       .onUpdate('CASCADE');
 
@@ -42,5 +42,5 @@ export async function up(knex: Knex): Promise<void> {
 }
 
 export async function down(knex: Knex): Promise<void> {
-  return knex.schema.dropTableIfExists('products');
+  return knex.schema.dropTableIfExists('p');
 }

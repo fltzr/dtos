@@ -1,8 +1,8 @@
 import { z } from 'zod';
 import { BaseInputSchema, BaseOutputSchema } from '../base.dto';
 
-const ProductTypeInputSchema = BaseInputSchema.extend({
-  productTypeId: z.number().min(1).optional(),
+const PTInputSchema = BaseInputSchema.extend({
+  pTId: z.number().min(1).optional(),
   name: z
     .string()
     .trim()
@@ -15,12 +15,12 @@ const ProductTypeInputSchema = BaseInputSchema.extend({
   description: z.string().max(500).nullish(),
 });
 
-export const ProductTypeOutputSchema = BaseOutputSchema.extend({
+export const PTOutputSchema = BaseOutputSchema.extend({
   product_type_id: z.number(),
   name: z.string(),
   description: z.string().nullish(),
 }).transform((dbData) => ({
-  productTypeId: dbData.product_type_id,
+  pTId: dbData.product_type_id,
   uuid: dbData.uuid,
   name: dbData.name,
   description: dbData.description,
@@ -32,8 +32,8 @@ export const ProductTypeOutputSchema = BaseOutputSchema.extend({
   updatedBy: dbData.updated_by,
 }));
 
-export const ProductTypeCreateSchema = ProductTypeInputSchema.omit({
-  productTypeId: true,
+export const PTCreateSchema = PTInputSchema.omit({
+  pTId: true,
   createdBy: true,
   updatedBy: true,
   isDeleted: true,
@@ -50,7 +50,7 @@ export const ProductTypeCreateSchema = ProductTypeInputSchema.omit({
     updated_at: appData.updatedAt,
   }));
 
-export const ProductTypeUpdateSchema = ProductTypeInputSchema.pick({
+export const PTUpdateSchema = PTInputSchema.pick({
   name: true,
   description: true,
   accessLevel: true,
@@ -76,6 +76,6 @@ export const ProductTypeUpdateSchema = ProductTypeInputSchema.pick({
     updated_by: appData.updatedBy,
   }));
 
-export type ProductTypeOutput = z.infer<typeof ProductTypeOutputSchema>;
-export type ProductTypeCreate = z.infer<typeof ProductTypeCreateSchema>;
-export type ProductTypeUpdate = z.infer<typeof ProductTypeUpdateSchema>;
+export type PTOutput = z.infer<typeof PTOutputSchema>;
+export type PTCreate = z.infer<typeof PTCreateSchema>;
+export type PTUpdate = z.infer<typeof PTUpdateSchema>;

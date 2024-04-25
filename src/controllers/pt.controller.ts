@@ -1,16 +1,16 @@
 import type { Request, Response, NextFunction } from 'express';
 import db from '../db/knex';
-import { ProductTypeOutputSchema } from '../schemas/products/product-types.dto';
+import { PTOutputSchema } from '../schemas/p/pt.dto';
 import { ErrorHandler } from '../exception/db-exception';
 
-const transformProductType = (data: any) =>
-  ProductTypeOutputSchema.transform((data) => ({
-    productTypeId: data.productTypeId,
+const transformPT = (data: any) =>
+  PTOutputSchema.transform((data) => ({
+    pTId: data.pTId,
     name: data.name,
     description: data.description ?? '',
   })).parse(data);
 
-export const createProductType = async (
+export const createPT = async (
   request: Request,
   response: Response,
   next: NextFunction
@@ -31,7 +31,7 @@ export const createProductType = async (
   }
 };
 
-export const readProductTypes = async (
+export const readPTs = async (
   _request: Request,
   response: Response,
   next: NextFunction
@@ -39,19 +39,16 @@ export const readProductTypes = async (
   try {
     const raw = await db.select('*').from('product_types').where({ is_deleted: false });
 
-    const productTypes = raw.map(transformProductType);
+    const pTs = raw.map(transformPT);
 
-    return response.send(productTypes);
+    return response.send(pTs);
   } catch (error) {
-    console.error(`[READ PRODUCTTYPE ERROR]: ${JSON.stringify(error, null, 2)}`);
+    console.error(`[READ PT ERROR]: ${JSON.stringify(error, null, 2)}`);
     return next(new Error('Internal Server Error'));
   }
 };
 
-export const readProductTypeByResourceId = async (
-  request: Request,
-  response: Response
-) => {
+export const readPTByResourceId = async (request: Request, response: Response) => {
   const { resourceId } = request;
 
   try {
@@ -66,9 +63,9 @@ export const readProductTypeByResourceId = async (
       .first();
 
     const rawResponse = await query;
-    const productType = transformProductType(rawResponse);
+    const pT = transformPT(rawResponse);
 
-    return response.status(200).send({ items: productType });
+    return response.status(200).send({ items: pT });
   } catch (error) {
     console.error(error);
     return response
@@ -77,7 +74,7 @@ export const readProductTypeByResourceId = async (
   }
 };
 
-export const updateProductType = async (request: Request, response: Response) => {
+export const updatePT = async (request: Request, response: Response) => {
   const { resourceId } = request;
   const parsedData = request.body;
 
@@ -96,7 +93,7 @@ export const updateProductType = async (request: Request, response: Response) =>
 };
 
 // soft delete
-export const deleteProductType = async (
+export const deletePT = async (
   request: Request,
   response: Response,
   next: NextFunction

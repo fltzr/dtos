@@ -1,8 +1,8 @@
 import type { Knex } from 'knex';
 
 export async function up(knex: Knex): Promise<void> {
-  return knex.schema.createTable('manufacturers', (table) => {
-    table.increments('manufacturer_id').primary();
+  return knex.schema.createTable('ms', (table) => {
+    table.increments('m_id').primary();
     table.uuid('uuid').defaultTo(knex.fn.uuid()).unique();
     table.string('name', 40).notNullable();
     table.string('description').checkLength('<', 100).nullable();
@@ -17,5 +17,5 @@ export async function up(knex: Knex): Promise<void> {
 }
 
 export async function down(knex: Knex): Promise<void> {
-  return knex.schema.dropTableIfExists('manufacturers');
+  return knex.schema.dropTableIfExists('ms');
 }

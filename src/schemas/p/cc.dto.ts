@@ -1,8 +1,8 @@
 import { z } from 'zod';
 import { BaseInputSchema, BaseOutputSchema } from '../base.dto';
 
-const ManufacturerInputSchema = BaseInputSchema.extend({
-  manufacturerId: z.number().min(1).optional(),
+const CCInputSchema = BaseInputSchema.extend({
+  cCId: z.number().min(1).optional(),
   name: z
     .string()
     .trim()
@@ -12,15 +12,15 @@ const ManufacturerInputSchema = BaseInputSchema.extend({
       (value) => /^[a-zA-Z0-9]*$/.test(value),
       'Name must not contain special characters.'
     ),
-  description: z.string().max(500).nullish(),
+  description: z.string().max(500).optional(),
 });
 
-export const ManufacturerOutputSchema = BaseOutputSchema.extend({
-  manufacturer_id: z.number(),
+export const CCOutputSchema = BaseOutputSchema.extend({
+  catalog_category_id: z.number(),
   name: z.string(),
-  description: z.string().nullish(),
+  description: z.string().optional(),
 }).transform((dbData) => ({
-  manufacturerId: dbData.manufacturer_id,
+  cCId: dbData.catalog_category_id,
   uuid: dbData.uuid,
   name: dbData.name,
   description: dbData.description,
@@ -32,8 +32,8 @@ export const ManufacturerOutputSchema = BaseOutputSchema.extend({
   updatedBy: dbData.updated_by,
 }));
 
-export const ManufacturerCreateSchema = ManufacturerInputSchema.omit({
-  manufacturerId: true,
+export const CCCreateSchema = CCInputSchema.omit({
+  cCId: true,
   createdBy: true,
   updatedBy: true,
   isDeleted: true,
@@ -50,7 +50,7 @@ export const ManufacturerCreateSchema = ManufacturerInputSchema.omit({
     updated_at: appData.updatedAt,
   }));
 
-export const ManufacturerUpdateSchema = ManufacturerInputSchema.pick({
+export const CCUpdateSchema = CCInputSchema.pick({
   name: true,
   description: true,
   accessLevel: true,
@@ -76,6 +76,6 @@ export const ManufacturerUpdateSchema = ManufacturerInputSchema.pick({
     updated_by: appData.updatedBy,
   }));
 
-export type ManufacturerOutput = z.infer<typeof ManufacturerOutputSchema>;
-export type ManufacturerCreate = z.infer<typeof ManufacturerCreateSchema>;
-export type ManufacturerUpdate = z.infer<typeof ManufacturerUpdateSchema>;
+export type CCOutput = z.infer<typeof CCOutputSchema>;
+export type CCCreate = z.infer<typeof CCCreateSchema>;
+export type CCUpdate = z.infer<typeof CCUpdateSchema>;

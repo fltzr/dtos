@@ -2,16 +2,16 @@ import { Knex } from 'knex';
 
 export async function seed(knex: Knex): Promise<void> {
   // Deletes ALL existing entries
-  await knex('products').del();
+  await knex('p').del();
 
   // Inserts seed entries
-  await knex('products').insert([
+  await knex('p').insert([
     {
       product_id: 2,
       name: 'Computer',
       description: 'Description of computer',
       catalog_category_id: 2,
-      manufacturer_id: 3,
+      m_id: 3,
       product_type_id: 2,
       created_by: 'JOSH',
       created_at: new Date(),
@@ -23,7 +23,7 @@ export async function seed(knex: Knex): Promise<void> {
       name: 'Television',
       description: 'Description of television',
       catalog_category_id: 2,
-      manufacturer_id: 2,
+      m_id: 2,
       product_type_id: 2,
       created_by: 'JOSH',
       created_at: new Date(),
@@ -35,7 +35,7 @@ export async function seed(knex: Knex): Promise<void> {
       name: 'Fan',
       description: 'Description of fan',
       catalog_category_id: 3,
-      manufacturer_id: 3,
+      m_id: 3,
       product_type_id: 3,
       created_by: 'JOSH',
       created_at: new Date(),

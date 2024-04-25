@@ -3,104 +3,80 @@ import { type Request, type Response, Router } from 'express';
 import { validateBody } from './middleware/validate-body.middleware';
 import { validateParams } from './middleware/validate-params.middleware';
 
+import { CCCreateSchema, CCUpdateSchema } from './schemas/p/cc.dto';
 import {
-  CatalogCategoryCreateSchema,
-  CatalogCategoryUpdateSchema,
-} from './schemas/products/catalog-category.dto';
-import {
-  createCatalogCategory,
-  readCatalogCategories,
-  readCatalogCategoriesByResourceId,
-  updateCatalogCategory,
-  deleteCatalogCategory,
-} from './controllers/catalog-categories.controller';
+  createCC,
+  readCC,
+  readCCByResourceId,
+  updateCC,
+  deleteCC,
+} from './controllers/cc.controller';
 
+import { MCreateSchema, MUpdateSchema } from './schemas/p/m.dto';
 import {
-  ManufacturerCreateSchema,
-  ManufacturerUpdateSchema,
-} from './schemas/products/manufacturers.dto';
-import {
-  createManufacturer,
-  readManufacturers,
-  readManufacturerByResourceId,
-  updateManufacturer,
-  deleteManufacturer,
-} from './controllers/manufacturers.controller';
+  createM,
+  readMs,
+  readMByResourceId,
+  updateM,
+  deleteM,
+} from './controllers/m.controller';
 
+import { PTCreateSchema, PTUpdateSchema } from './schemas/p/pt.dto';
 import {
-  ProductTypeCreateSchema,
-  ProductTypeUpdateSchema,
-} from './schemas/products/product-types.dto';
-import {
-  createProductType,
-  readProductTypes,
-  readProductTypeByResourceId,
-  updateProductType,
-  deleteProductType,
-} from './controllers/product-types.controller';
+  createPT,
+  readPTs,
+  readPTByResourceId,
+  updatePT,
+  deletePT,
+} from './controllers/pt.controller';
 
 // Define routes
 export const routes = Router();
 
 routes
   /* [C]reate */
-  .post('/cc', validateBody(CatalogCategoryCreateSchema, 'CREATE'), createCatalogCategory)
+  .post('/cc', validateBody(CCCreateSchema, 'CREATE'), createCC)
 
   /* [R]ead  all catalog categories */
-  .get('/cc', readCatalogCategories)
+  .get('/cc', readCC)
 
   /* [R]ead by catalog_category_id or uuid */
-  .get('/cc/:id', validateParams, readCatalogCategoriesByResourceId)
+  .get('/cc/:id', validateParams, readCCByResourceId)
 
   /* [U]pdate */
-  .patch(
-    '/cc/:id',
-    validateParams,
-    validateBody(CatalogCategoryUpdateSchema, 'UPDATE'),
-    updateCatalogCategory
-  )
+  .patch('/cc/:id', validateParams, validateBody(CCUpdateSchema, 'UPDATE'), updateCC)
 
   /* [D]elete */
-  .delete('/cc/:id', validateParams, deleteCatalogCategory);
+  .delete('/cc/:id', validateParams, deleteCC);
 
 routes
   /* [C]reate */
-  .post('/m', validateBody(ManufacturerCreateSchema, 'CREATE'), createManufacturer)
+  .post('/m', validateBody(MCreateSchema, 'CREATE'), createM)
 
   /* [R]ead  all catalog categories */
-  .get('/m', readManufacturers)
+  .get('/m', readMs)
 
   /* [R]ead by catalog_category_id or uuid */
-  .get('/m/:id', validateParams, readManufacturerByResourceId)
+  .get('/m/:id', validateParams, readMByResourceId)
 
   /* [U]pdate */
-  .patch(
-    '/m/:id',
-    validateParams,
-    validateBody(ManufacturerUpdateSchema, 'UPDATE'),
-    updateManufacturer
-  )
+  .patch('/m/:id', validateParams, validateBody(MUpdateSchema, 'UPDATE'), updateM)
 
   /* [D]elete */
-  .delete('/m/:id', validateParams, deleteManufacturer);
+  .delete('/m/:id', validateParams, deleteM);
 
 routes
   /* [C]reate */
-  .post('/pt', validateBody(ProductTypeCreateSchema, 'CREATE'), createProductType)
+  .post('/pt', validateBody(PTCreateSchema, 'CREATE'), createPT)
 
   /* [R]ead  all catalog categories */
-  .get('/pt', readProductTypes)
+  .get('/pt', readPTs)
 
   /* [R]ead by catalog_category_id or uuid */
-  .get('/pt/:id', validateParams, readProductTypeByResourceId)
+  .get('/pt/:id', validateParams, readPTByResourceId)
 
   /* [U]pdate */
-  .patch(
-    '/pt/:id',
-    validateParams,
-    validateBody(ProductTypeUpdateSchema, 'UPDATE'),
-    updateProductType
-  )
+  .patch('/pt/:id', validateParams, validateBody(PTUpdateSchema, 'UPDATE'), updatePT)
 
   /* [D]elete */
-  .delete('/pt/:id', validateParams, deleteProductType);
+  .delete('/pt/:id', validateParams, deletePT);

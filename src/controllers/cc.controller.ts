@@ -1,17 +1,17 @@
 import type { Request, Response, NextFunction } from 'express';
 import db from '../db/knex';
-import { CatalogCategoryOutputSchema } from '../schemas/products/catalog-category.dto';
+import { CCOutputSchema } from '../schemas/p/cc.dto';
 import { HttpStatus } from '../constants/http-status';
 
-const transformCatalogCategory = (data: any) =>
-  CatalogCategoryOutputSchema.transform((data) => ({
-    id: data.catalogCategoryId,
+const transformCC = (data: any) =>
+  CCOutputSchema.transform((data) => ({
+    id: data.cCId,
     uuid: data.uuid,
     name: data.name,
     description: data.description,
   })).parse(data);
 
-export const createCatalogCategory = async (
+export const createCC = async (
   request: Request,
   response: Response,
   next: NextFunction
@@ -20,7 +20,7 @@ export const createCatalogCategory = async (
     const { catalog_category_id, uuid, ...parsedData } = request.body;
     console.info(`📄 Parsed Data: ${JSON.stringify(parsedData, null, 2)}`);
 
-    const result = await db('catalog_categories')
+    const result = await db('cc')
       .returning(['catalog_category_id', 'uuid'])
       .insert(parsedData);
 
@@ -31,22 +31,19 @@ export const createCatalogCategory = async (
   }
 };
 
-export const readCatalogCategories = async (
+export const readCC = async (
   _request: Request,
   response: Response,
   next: NextFunction
 ) => {
   try {
-    const rawCategories = await db
-      .select('*')
-      .from('catalog_categories')
-      .where({ is_deleted: false });
+    const rawCategories = await db.select('*').from('cc').where({ is_deleted: false });
 
-    const catalogCategories = rawCategories.map(transformCatalogCategory);
+    const cC = rawCategories.map(transformCC);
 
     return response.send({
-      items: catalogCategories,
-      totalCount: catalogCategories.length,
+      items: cC,
+      totalCount: cC.length,
     });
   } catch (error) {
     console.error(JSON.stringify(error, null, 2));
@@ -54,7 +51,7 @@ export const readCatalogCategories = async (
   }
 };
 
-export const readCatalogCategoriesByResourceId = async (
+export const readCCByResourceId = async (
   request: Request,
   response: Response,
   next: NextFunction
@@ -64,7 +61,7 @@ export const readCatalogCategoriesByResourceId = async (
   try {
     const categoriesQuery = db
       .select('*')
-      .from('catalog_categories')
+      .from('cc')
       .where(
         typeof resourceId === 'number'
           ? { catalog_category_id: resourceId }
@@ -73,16 +70,16 @@ export const readCatalogCategoriesByResourceId = async (
       .first();
 
     const rawResponse = await categoriesQuery;
-    const catalogCategory = transformCatalogCategory(rawResponse);
+    const cC = transformCC(rawResponse);
 
-    return response.status(HttpStatus.OK).send({ items: catalogCategory });
+    return response.status(HttpStatus.OK).send({ items: cC });
   } catch (error) {
     console.error(JSON.stringify(error, null, 2));
     return next(error);
   }
 };
 
-export const updateCatalogCategory = async (
+export const updateCC = async (
   request: Request,
   response: Response,
   next: NextFunction
@@ -92,7 +89,7 @@ export const updateCatalogCategory = async (
 
   try {
     await db.transaction(async (trx) => {
-      const result = await trx('catalog_categories')
+      const result = await trx('cc')
         .where({ catalog_category_id: resourceId })
         .update(parsedData);
 
@@ -106,7 +103,7 @@ export const updateCatalogCategory = async (
   }
 };
 
-export const deleteCatalogCategory = async (
+export const deleteCC = async (
   request: Request,
   response: Response,
   next: NextFunction
@@ -115,7 +112,7 @@ export const deleteCatalogCategory = async (
 
   try {
     await db.transaction(async (trx) => {
-      const result = await trx('catalog_categories')
+      const result = await trx('cc')
         .where(
           typeof resourceId === 'number'
             ? { catalog_category_id: resourceId }
